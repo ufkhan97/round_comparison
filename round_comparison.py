@@ -5,6 +5,7 @@ import plotly.express as px
 import requests
 import json
 import utils
+from datetime import datetime, timezone
 
 st.set_page_config(
     page_title="Round Comparison",
@@ -175,3 +176,31 @@ pivot_df_votes['percentage_difference_votes_beta'] = pivot_df_votes['percentage_
 pivot_df_votes['percentage_difference_votes_alpha'] = pivot_df_votes['percentage_difference_votes_alpha'].map('{:,.2f}%'.format)
 st.write(pivot_df_votes)
 
+max_alpha_votes = pivot_df_votes['Alpha'].max()
+max_beta_votes = pivot_df_votes['Beta'].max()
+max_gg18_votes = pivot_df_votes['GG18'].max()
+
+max_alpha_amount = pivot_df['Alpha'].max()
+max_beta_amount = pivot_df['Beta'].max()
+max_gg18_amount = pivot_df['GG18'].max()
+
+col1, col2, col3 = st.columns(3)
+col1.subheader("Alpha")
+col1.metric("Votes", f"{max_alpha_votes:,}" )
+col1.metric("Amount", f"${max_alpha_amount:,.2f} ")
+col1.metric("Amount per Vote", f"${max_alpha_amount/max_alpha_votes:,.2f} ")
+col2.subheader("Beta")
+col2.metric("Votes", f"{max_beta_votes:,}" )
+col2.metric("Amount", f"${max_beta_amount:,.2f} ")
+col2.metric("Amount per Vote", f"${max_beta_amount/max_beta_votes:,.2f} ")
+col3.subheader("GG18")
+col3.metric("Votes", f"{max_gg18_votes:,}" )
+col3.metric("Amount", f"${max_gg18_amount:,.2f} ")
+col3.metric("Amount per Vote", f"${max_gg18_amount/max_gg18_votes:,.2f} ")
+
+# Set the target time: August 29th, 2023 at 12 PM UTC
+target_time = datetime(2023, 8, 29, 12, 0, tzinfo=timezone.utc)
+time_left = utils.get_time_left(target_time)
+col3.subheader("")
+col3.subheader("⏰ Time Left:")
+col3.subheader((time_left))
