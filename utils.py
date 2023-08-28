@@ -163,7 +163,7 @@ def get_time_left(target_time):
     minutes, seconds = divmod(remainder, 60)
     return f"{time_diff.days} days   {hours} hours   {minutes} minutes"
 
-@st.cache_resource(ttl=time_to_live)
+@st.cache_resource(ttl=9999999999999)
 def get_beta_votes_data():
     # Set up headers with the session token
     QUESTION_ID = 7
