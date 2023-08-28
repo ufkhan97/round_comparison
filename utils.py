@@ -94,9 +94,9 @@ def compute_timestamp(row, starting_time, chain_starting_blocks):
     return pd.to_datetime(timestamp)
 
 @st.cache_resource(ttl=time_to_live)
-def load_round_data(program='GG18', csv_path='gg18_rounds.csv'):
+def load_round_data(csv_path='gg18_rounds.csv'):
     round_data = pd.read_csv(csv_path)
-    round_data = round_data[round_data['program'] == program]
+    #round_data = round_data[round_data['program'] == program]
 
     dfv_list = []
     dfp_list = []
@@ -110,10 +110,12 @@ def load_round_data(program='GG18', csv_path='gg18_rounds.csv'):
         dfp['round_id'] = row['round_id']
         dfp['chain_id'] = row['chain_id']
         dfp['round_name'] = row['round_name']
+        dfp['program'] = row['program']
 
         dfv['round_id'] = row['round_id']
         dfv['chain_id'] = row['chain_id']
         dfv['round_name'] = row['round_name']
+        dfv['program'] = row['program']
 
         dfv_list.append(dfv)
         dfp_list.append(dfp)
@@ -163,8 +165,8 @@ def get_time_left(target_time):
     minutes, seconds = divmod(remainder, 60)
     return f"{time_diff.days} days   {hours} hours   {minutes} minutes"
 
-@st.cache_resource(ttl=9999999999999)
-def get_beta_votes_data():
+
+def get_beta_votes_data_online():
     # Set up headers with the session token
     QUESTION_ID = 7
     headers = {
@@ -179,11 +181,22 @@ def get_beta_votes_data():
     else:
         st.warning("Error:", response.status_code, response.text)
         data = []
-
+    st.write(data)
     # Load in df
     df_votes = pd.DataFrame(data)
+
     df_votes['day_number'] = df_votes.groupby('round_id').cumcount() + 1
     # drop round_id and date
+    df_votes.drop(['round_id', 'date'], axis=1, inplace=True)
+    df_votes['program'] = "Beta"
+    return df_votes
+
+@st.cache_resource(ttl=9999999)
+def get_beta_votes_data():
+    df_votes = pd.read_csv('beta_by_day.csv')
+    df_votes['day_number'] = df_votes.groupby('round_id').cumcount() + 1
+    # drop round_id and date
+    st.write(df_votes)
     df_votes.drop(['round_id', 'date'], axis=1, inplace=True)
     df_votes['program'] = "Beta"
     return df_votes

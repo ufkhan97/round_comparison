@@ -17,7 +17,6 @@ st.set_page_config(
 st.title('⚖️ Gitcoin Grants Round Comparison')
 
 st.title("Comparing Crowdfunding Dollars ($) By Day of Round")
-df = utils.get_beta_votes_data()
 df_alpha = pd.read_csv('alpha_by_day.csv')
 df_alpha.drop(['date'], axis=1, inplace=True) 
 # strip $ and ,
@@ -37,19 +36,21 @@ else:
 
 
 dfv = dfv.drop_duplicates()
+dfv['round_name'] = dfv['program'] + " " + dfv['round_name'].astype(str)
 # group by date of timestamp and round_name, get sum of amountUSD and count of rows
-dfv_grouped = dfv.groupby([pd.Grouper(key='timestamp', freq='D'), 'round_name']).agg({'amountUSD': 'sum', 'voter': 'count'}).reset_index()
+dfv_grouped = dfv.groupby([pd.Grouper(key='timestamp', freq='D'), 'program','round_name']).agg({'amountUSD': 'sum', 'voter': 'count'}).reset_index()
 # rename voter to votes 
 dfv_grouped.rename(columns={'voter': 'votes'}, inplace=True)
 dfv_grouped['day_number'] = dfv_grouped.groupby('round_name').cumcount() + 1
+# filter out if day > 15 
+dfv_grouped = dfv_grouped[dfv_grouped['day_number'] <= 15]
+# set gg18 day_number 15 to nan for amountUSD and votes
+dfv_grouped.loc[(dfv_grouped['program'] == 'GG18') & (dfv_grouped['day_number'] == 15), ['amountUSD', 'votes']] = np.nan
 # drop timestamp 
 dfv_grouped.drop(['timestamp'], axis=1, inplace=True)
-dfv_grouped['program'] = "GG18"
 
-
-# concat dfv_grouped and df
-df_all = pd.concat([dfv_grouped, df])
 # order values by program, round_name, day_number
+df_all = dfv_grouped
 df_all.sort_values(by=['program', 'day_number','round_name' ], inplace=True)
 
 
