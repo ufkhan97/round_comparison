@@ -19,7 +19,6 @@ st.title('⚖️ Gitcoin Grants Round Comparison')
 st.title("Comparing Crowdfunding Dollars ($) By Day of Round")
 df_alpha = pd.read_csv('alpha_by_day.csv')
 df_alpha.drop(['date'], axis=1, inplace=True) 
-# strip $ and ,
 df_alpha['amountUSD'] = df_alpha['amountUSD'].str.replace('$', '')
 df_alpha['amountUSD'] = df_alpha['amountUSD'].str.replace(',', '')
 df_alpha['amountUSD'] = df_alpha['amountUSD'].astype(float)
@@ -37,24 +36,15 @@ else:
 
 dfv = dfv.drop_duplicates()
 dfv['round_name'] = dfv['program'] + " " + dfv['round_name'].astype(str)
-# group by date of timestamp and round_name, get sum of amountUSD and count of rows
 dfv_grouped = dfv.groupby([pd.Grouper(key='timestamp', freq='D'), 'program','round_name']).agg({'amountUSD': 'sum', 'voter': 'count'}).reset_index()
-# rename voter to votes 
 dfv_grouped.rename(columns={'voter': 'votes'}, inplace=True)
 dfv_grouped['day_number'] = dfv_grouped.groupby('round_name').cumcount() + 1
-# filter out if day > 15 
 dfv_grouped = dfv_grouped[dfv_grouped['day_number'] <= 15]
-# set gg18 day_number 15 to nan for amountUSD and votes
-#dfv_grouped.loc[(dfv_grouped['program'] == 'GG18') & (dfv_grouped['day_number'] == 15), ['amountUSD', 'votes']] = np.nan
-# drop timestamp 
 dfv_grouped.drop(['timestamp'], axis=1, inplace=True)
 
-# order values by program, round_name, day_number
+
 df_all = dfv_grouped
 df_all.sort_values(by=['program', 'day_number','round_name' ], inplace=True)
-
-
-# Replace comma in the amount_usd column and convert it to a float
 df_all['amountUSD'] = df_all['amountUSD'].astype(float)
 
 # Compute cumulative sum for each program
@@ -65,7 +55,7 @@ df_grouped = pd.concat([df_grouped, df_alpha[['program', 'day_number', 'cumulati
 
 
 col1, col2 = st.columns(2)
-# Plot using Plotly
+
 fig = px.line(df_grouped, x='day_number', y='cumulative_amount', color='program', title='Cumulative sum of amountUSD by day and program', labels={'day_number': 'Day', 'cumulative_amount': 'Cumulative Amount (in dollars)'}, color_discrete_map={'GG18': 'red', 'Beta': 'blue', 'Alpha': 'brown'})
 col1.plotly_chart(fig, use_container_width=True)
 
