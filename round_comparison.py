@@ -45,7 +45,7 @@ dfv_grouped['day_number'] = dfv_grouped.groupby('round_name').cumcount() + 1
 # filter out if day > 15 
 dfv_grouped = dfv_grouped[dfv_grouped['day_number'] <= 15]
 # set gg18 day_number 15 to nan for amountUSD and votes
-dfv_grouped.loc[(dfv_grouped['program'] == 'GG18') & (dfv_grouped['day_number'] == 15), ['amountUSD', 'votes']] = np.nan
+#dfv_grouped.loc[(dfv_grouped['program'] == 'GG18') & (dfv_grouped['day_number'] == 15), ['amountUSD', 'votes']] = np.nan
 # drop timestamp 
 dfv_grouped.drop(['timestamp'], axis=1, inplace=True)
 
