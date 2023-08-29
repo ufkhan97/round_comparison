@@ -35,20 +35,22 @@ else:
 
 
 dfv = dfv.drop_duplicates()
-dfv['round_name'] = dfv['program'] + " " + dfv['round_name'].astype(str)
-dfv_grouped = dfv.groupby([pd.Grouper(key='timestamp', freq='D'), 'program','round_name']).agg({'amountUSD': 'sum', 'voter': 'count'}).reset_index()
+#dfv['round_name'] = dfv['program'] + " " + dfv['round_name'].astype(str)
+dfv_grouped = dfv.groupby([pd.Grouper(key='timestamp', freq='D'), 'program']).agg({'amountUSD': 'sum', 'voter': 'count'}).reset_index()
 dfv_grouped.rename(columns={'voter': 'votes'}, inplace=True)
-dfv_grouped['day_number'] = dfv_grouped.groupby('round_name').cumcount() + 1
+dfv_grouped['day_number'] = dfv_grouped.groupby('program').cumcount() + 1
 dfv_grouped = dfv_grouped[dfv_grouped['day_number'] <= 15]
 dfv_grouped.drop(['timestamp'], axis=1, inplace=True)
 
 
 df_all = dfv_grouped
-df_all.sort_values(by=['program', 'day_number','round_name' ], inplace=True)
+df_all.sort_values(by=['program', 'day_number' ], inplace=True)
 df_all['amountUSD'] = df_all['amountUSD'].astype(float)
 
 # Compute cumulative sum for each program
+
 df_all['cumulative_amount'] = df_all.groupby('program')['amountUSD'].cumsum()
+#st.write(df_all)
 df_grouped = df_all.groupby([ 'program', 'day_number'])['cumulative_amount'].max().reset_index()
 df_alpha['cumulative_amount'] = df_alpha.groupby('program')['amountUSD'].cumsum()
 df_grouped = pd.concat([df_grouped, df_alpha[['program', 'day_number', 'cumulative_amount']]])
