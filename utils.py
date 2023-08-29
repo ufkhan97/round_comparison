@@ -150,7 +150,7 @@ def load_round_data(csv_path='gg18_rounds.csv'):
     
     #dfv = pd.merge(dfv, df_ens, how='left', left_on='voter', right_on='address')
     #dfv['voter_id'] = dfv['name'].fillna(dfv['voter'])
-
+    dfv.drop_duplicates()
     st.session_state.dfv = dfv
     st.session_state.dfp = dfp
     st.session_state.round_data = round_data
