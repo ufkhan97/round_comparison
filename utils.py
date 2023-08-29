@@ -163,6 +163,8 @@ def get_time_left(target_time):
     time_diff = target_time - now
     hours, remainder = divmod(time_diff.seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
+    if time_diff.days < 0:
+        return f"0 days   0 hours   0 minutes"
     return f"{time_diff.days} days   {hours} hours   {minutes} minutes"
 
 
