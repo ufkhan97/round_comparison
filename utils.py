@@ -6,7 +6,7 @@ import json
 from datetime import datetime, timezone
 
 
-BASE_URL = "https://indexer-grants-stack.gitcoin.co/data"
+BASE_URL = "https://indexer-production.fly.dev/data"
 time_to_live = 1800  # 30 minutes
 
 # Helper function to load data from URLs
